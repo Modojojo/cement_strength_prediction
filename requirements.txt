@@ -4,3 +4,5 @@ pyyaml
 pandas
 numpy
 pymongo
+kneed
+xgboost

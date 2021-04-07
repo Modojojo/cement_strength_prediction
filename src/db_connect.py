@@ -7,7 +7,7 @@ datetime_lib = datetime
 date_lib = date
 
 
-DB_NAME = os.environ.get("DB_NAME")
+DB_NAME = os.environ.get("CEMENT_DB_NAME")
 DB_KEY = os.environ.get("DB_KEY")
 
 
@@ -50,7 +50,7 @@ class DbConnector:
 
     def fetch_training_data(self):
         collection = self.database[self.TRAINING_COLLECTION_NAME]
-        data = pd.DataFrame.from_records(collection.find({}, {'_id':0}))
+        data = pd.DataFrame.from_records(collection.find({}, {'_id': 0}))
         return data
 
     def insert_errored_data(self, file):

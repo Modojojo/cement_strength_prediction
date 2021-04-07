@@ -1,102 +1,153 @@
-import pandas as pd
-from boto3.session import Session
-import pickle
-import json
+import pymongo
+import pymongo.errors
+from datetime import datetime, date
 import os
 
+datetime_lib = datetime
+date_lib = date
 
-access_key = os.environ.get("CLOUD_ACCESS_KEY")
-secret_access_key = os.environ.get("CLOUD_SECRET_ACCESS_KEY")
-bucket_name = os.environ.get("CLOUD_BUCKET_NAME")
+DB_NAME = os.environ.get("DB_NAME")
+DB_KEY = os.environ.get("DB_KEY")
 
 
-class Cloud:
-    def __init__(self, config):
-        self.access_key = access_key
-        self.secret_access_key = secret_access_key
-        self.session = None
-        self.s3_resource = None
-        self.bucket_name = bucket_name
-        self.bucket = None
+class Logger:
+    def __init__(self):
+        self.db = None
+        self.client = None
+        self.database = None
+        self.DB_NAME = DB_NAME
+        self.DB_KEY = DB_KEY
+        self.datetime_lib = datetime_lib
+        self.date_lib = date_lib
         self.connect()
-        self.training_data_dir = config["cloud"]["training_data_folder"]
-        self.prediction_data_dir = config["cloud"]["prediction_data_folder"]
-        self.models_path = config["cloud"]["models_save_path"]
 
     def connect(self):
         """
-        Connects to the s3 bucket
+        Connect to the mongoDb database
         :return:
         """
         try:
-            self.session = Session(aws_access_key_id=access_key, aws_secret_access_key=secret_access_key)
-            self.s3_resource = self.session.resource('s3')
-            self.bucket = self.s3_resource.Bucket(self.bucket_name)
-        except Exception as e:
-            raise Exception('Some Error occurred while connecting to the cloud storage')
-        return
+            self.client = pymongo.MongoClient(f"mongodb+srv://mododb:{self.DB_KEY}@testcluster.mbnqg.mongodb.net/test")
+            self.database = self.client[self.DB_NAME]
+            self.client.server_info()
+            return True
+        except pymongo.errors.ServerSelectionTimeoutError as e:
+            raise e
 
-    def read_data(self, filename, predicton=False):
+    def close(self):
+        self.client.close()
+
+    def get_date(self):
+        datenow = self.date_lib.today()
+        return str(datenow)
+
+    def get_time(self):
+        timenow = self.datetime_lib.now()
+        current_time = timenow.strftime("%H:%M:%S")
+        return str(current_time)
+
+    def move_logs_to_hist(self):
+        collections_list = ['raw_validation_logs', 'process_logs', 'training_logs', 'METRICS']
+        move_to_collection_list = ['hist_raw_validation_logs', 'hist_process_logs', 'hist_training_logs', 'hist_metrics']
+        for i in range(len(collections_list)):
+            from_collection = self.database[collections_list[i]]
+            to_collection = self.database[move_to_collection_list[i]]
+            for row in from_collection.find({}, {'_id': 0}):
+                to_collection.insert(row)
+            from_collection.drop()
+
+    def export_logs(self, log_type):
         """
-        Reads the data file using pandas
-        :param path: complete path to the s3 file
+        Export the logs for a particular collection (log_type)
+        :param log_type: ['file_validation', 'data_validation', 'training', 'prediction']
         :return:
         """
+        logfile = []
+        collection = None
+
+        if log_type == 'file_validation':
+            collection = self.database['raw_validation_logs']
+
+        elif log_type == 'training':
+            collection = self.database['training_logs']
+
+        elif log_type == 'prediction':
+            collection = self.database['prediction_logs']
+
+        elif log_type == 'training_pipeline':
+            collection = self.database['process_logs']
+
+        if collection is not None:
+            for row in collection.find({}, {'_id': 0}):
+                logfile.append(row)
+
+        return self.format_logs(logfile)
+
+    def format_logs(self, logfile):
+        """
+        Utility function for formatting the log file while exporting
+        :param logfile: List of all the logs in dictionary format
+        :return:
+        """
+        log_file_export = []
+        for row in logfile:
+            log_list = [row[i] for i in row]
+            log_file_export.append(log_list)
+        return log_file_export
+
+    def log_file_validation(self,  message):
+        """
+        Logs File validation logs
+        :param message: Error Message
+        :return:
+        """
+        collection = self.database['raw_validation_logs']
+        timenow = self.get_time()
+        datenow = self.get_date()
+        i_datetime = str(datenow) + ' ' + str(timenow)
+        insert_dict = {"datetime": i_datetime,
+                       'error': message}
         try:
-            if predicton is False:
-                resource = self.s3_resource
-                s3_object = resource.Object(self.bucket_name, str(self.training_data_dir) + str(filename))
-                object_response = s3_object.get()
-                data = pd.read_csv(object_response['Body'])
-                return data
-            else:
-                resource = self.s3_resource
-                s3_object = resource.Object(self.bucket_name, str(self.prediction_data_dir) + str(filename))
-                object_response = s3_object.get()
-                data = pd.read_csv(object_response['Body'])
-                return data
-        except Exception as e:
-            raise Exception("Error while reading the file : {}".format(filename))
+            collection.insert(insert_dict)
+        except pymongo.errors.ServerSelectionTimeoutError as e:
+            raise e
+        except Exception:
+            raise Exception('Logger Failed, Please check database connection')
 
-    def get_file_names(self, prediction=False):
+    def log_training_pipeline(self,  message):
         """
-        Returns a list of names of all the files in a S3 Folder
-        :return: List of all the Filenames
-        """
-        if prediction is False:
-            filename_list = []
-            for objects in self.bucket.objects.filter(Prefix=self.training_data_dir):
-                filename = str(objects.key).split('/')[-1]
-                if filename != "":
-                    filename_list.append(filename)
-            return filename_list
-        else:
-            filename_list = []
-            for objects in self.bucket.objects.filter(Prefix=self.prediction_data_dir):
-                filename_list.append(str(objects.key).split('/')[-1])
-            return filename_list
-
-    def save_model(self, model, filename):
-        pickle_object = pickle.dumps(model)
-        self.s3_resource.Object(self.bucket_name, self.models_path + str(filename)).put(Body=pickle_object)
-        return
-
-    def load_model(self, filename):
-        """
-        Loads Models from cloud saved in directory - wafer/models/<filename>
-        :param filename:
+        Complete Process Logging
+        :param message: Message
         :return:
         """
-        model_object = self.s3_resource.Object(self.bucket_name, self.models_path + str(filename)).get()['Body'].read()
-        model = pickle.loads(model_object)
-        return model
+        collection = self.database['process_logs']
+        timenow = self.get_time()
+        datenow = self.get_date()
+        i_datetime = str(datenow) + ' ' + str(timenow)
+        insert_dict = {"datetime": i_datetime,
+                       'message': message}
+        try:
+            collection.insert(insert_dict)
+        except pymongo.errors.ServerSelectionTimeoutError as e:
+            raise e
+        except Exception:
+            raise Exception('Logger Failed, Please check database connection')
 
-    def write_json(self, json_file, filename):
-        json_object = json.dumps(json_file)
-        self.s3_resource.Object(self.bucket_name, self.models_path + str(filename)).put(Body=json_object)
-        return
-
-    def load_json(self, filename):
-        json_object = self.s3_resource.Object(self.bucket_name, self.models_path + str(filename)).get()['Body'].read()
-        json_file = json.loads(json_object)
-        return json_file
+    def log_training(self, message):
+        """
+        Complete Process Logging
+        :param message: Message
+        :return:
+        """
+        collection = self.database['training_logs']
+        timenow = self.get_time()
+        datenow = self.get_date()
+        i_datetime = str(datenow) + ' ' + str(timenow)
+        insert_dict = {"datetime": i_datetime,
+                       'message': message}
+        try:
+            collection.insert(insert_dict)
+        except pymongo.errors.ServerSelectionTimeoutError as e:
+            raise e
+        except Exception:
+            raise Exception('Logger Failed, Please check database connection')
