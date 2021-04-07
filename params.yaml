@@ -18,7 +18,7 @@ database:
   predictions_db: PREDICTIONS
 
 training_schema:
-  test_size: 0.2
+  test_size: 0.1
   number_of_columns: 9
   column_names:
     - cement_component_1

@@ -4,5 +4,7 @@ pyyaml
 pandas
 numpy
 pymongo
+dnspython
 kneed
 xgboost
+flask

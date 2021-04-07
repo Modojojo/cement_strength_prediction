@@ -1,7 +1,10 @@
-from src.cluster_builder import Cluster
-from src.training_preprocessor import Preprocessor
+from cluster_builder import Cluster
+from training_preprocessor import Preprocessor
 from sklearn.model_selection import train_test_split
-from src.model_builder import Model
+from db_connect import DbConnector
+from cloud_connect import Cloud
+from model_builder import Model
+import yaml
 
 
 class Training:
@@ -16,9 +19,11 @@ class Training:
         raw_data = self.fetch_training_data()
 
         # preprocessing
+        print("preprocessing")
         features, labels = self.preprocess_training_data(raw_data)
 
         # Clustering
+        print('clustering')
         clustering_obj = Cluster(cloud_object=self.cloud)
         cluster_labels = clustering_obj.create_cluster(features=features)
 
@@ -29,7 +34,8 @@ class Training:
 
         prediction_schema_dict = {}
         # perform Model Training based on clusters:
-        for cluster_number in training_data["cluster"].unique().tolist():
+        for cluster_number in training_data["cluster"].unique().tolist().sort():
+            print("training")
 
             # fetch data based on cluster number and divide into training and testing sets
             data = training_data[training_data["cluster"] == cluster_number].drop(["cluster"], axis=1)
@@ -62,3 +68,12 @@ class Training:
         features, labels = preprocessor_obj.preprocess(data)
         return features, labels
 
+
+if __name__=="__main__":
+    with open('params.yaml') as f:
+        config = yaml.safe_load(f)
+
+    db = DbConnector(config)
+    cloud = Cloud(config)
+    train = Training(config, cloud, db, None)
+    train.start_training()

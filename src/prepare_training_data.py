@@ -1,4 +1,7 @@
-from src.training_raw_validator import Validator
+from training_raw_validator import Validator
+from db_connect import DbConnector
+from cloud_connect import Cloud
+import yaml
 
 
 class PrepareTrainingData:
@@ -29,8 +32,17 @@ class PrepareTrainingData:
             file = self.read_one_file(filename)
             if Validator.validate_number_of_columns(file) is True:
                 if Validator.validate_name_of_columns(file) is True:
-                    success = (True, file)
-                    return success
+                    try:
+                        features = file.drop(self.config['base']['target_col'], axis=1)
+                        label = file[self.config['base']['target_col']]
+                        features = features.astype(float)
+                        features.insert(len(features.columns),
+                                        self.config['base']['target_col'],
+                                        label)
+                        success = (True, file)
+                        return success
+                    except Exception:
+                        return failed
                 else:
                     return failed
             else:
@@ -47,11 +59,23 @@ class PrepareTrainingData:
         return new_cols
 
     def prepare_data(self):
-        filenames_list = self.read_filenames()
-        print(filenames_list)
-        for filename in filenames_list:
-            (status, file) = self.validate_one_file(filename)
-            if status is True:
-                #self.insert_into_db(file)
-                print(filename)
+        try:
+            filenames_list = self.read_filenames()
+            print(filenames_list)
+            for filename in filenames_list:
+                (status, file) = self.validate_one_file(filename)
+                if status is True:
+                    self.insert_into_db(file)
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
+
+if __name__ == "__main__":
+    with open('params.yaml') as f:
+        config = yaml.safe_load(f)
+    db = DbConnector(config)
+    cloud = Cloud(config)
+    prep = PrepareTrainingData(config, cloud, db)
+    prep.prepare_data()
