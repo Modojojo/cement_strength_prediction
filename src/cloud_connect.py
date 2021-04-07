@@ -7,6 +7,7 @@ import os
 
 access_key = os.environ.get("CLOUD_ACCESS_KEY")
 secret_access_key = os.environ.get("CLOUD_SECRET_ACCESS_KEY")
+bucket_name = os.environ.get("CLOUD_BUCKET_NAME")
 
 
 class Cloud:
@@ -15,7 +16,7 @@ class Cloud:
         self.secret_access_key = secret_access_key
         self.session = None
         self.s3_resource = None
-        self.bucket_name = config["cloud"]["bucket_name"]
+        self.bucket_name = bucket_name
         self.bucket = None
         self.connect()
         self.training_data_dir = config["cloud"]["training_data_folder"]
