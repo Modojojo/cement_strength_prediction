@@ -1,13 +1,20 @@
-from flask import Flask
+from flask import Flask, request, render_template
 import yaml
+import os
 from src.db_connect import DbConnector
 from src.cloud_connect import Cloud
 from src.custom_logger import Logger
 from src.prepare_training_data import PrepareTrainingData
 from src.training import Training
+from src.prepare_prediction_data import PreparePredictionData
 
+params_path = 'params.yaml'
+webapp_root = 'webapp'
 
-app = Flask(__name__)
+static_dir = os.path.join(webapp_root, "static")
+template_dir = os.path.join(webapp_root, "templates")
+
+app = Flask(__name__, static_folder=static_dir, template_folder=template_dir)
 
 
 def read_params(config_path):
@@ -18,7 +25,7 @@ def read_params(config_path):
 
 @app.route('/', methods=["GET"])
 def index():
-    return
+    return render_template('')
 
 
 @app.route('/train', methods=["GET"])
@@ -41,6 +48,7 @@ def train():
     # preprocess
     # Cluster
     # train Regressor models
+    print("prepared  : {}".format(prepared))
     if prepared is True:
         trainer_obj = Training(config=config,
                                cloud=cloud,
@@ -49,8 +57,26 @@ def train():
         try:
             trainer_obj.start_training()
         except Exception as e:
-            return
-    return
+            print(e)
+            return render_template('')
+    return render_template('')
+
+
+@app.route('/predict', methods=["GET"])
+def prediction():
+    cloud = Cloud(config)
+    db = DbConnector(config)
+    logger = Logger()
+
+    # delete previous data
+    db.clear_prediction_folder()
+
+    # prepare data
+    data_prep = PreparePredictionData(config=config,
+                                      cloud_object=cloud,
+                                      db_object=db)
+    data_prep.prepare_data()
+    return render_template('')
 
 
 if __name__ == "__main__":

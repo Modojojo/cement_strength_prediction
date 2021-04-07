@@ -1,10 +1,7 @@
-from cluster_builder import Cluster
-from training_preprocessor import Preprocessor
+from src.cluster_builder import Cluster
+from src.training_preprocessor import Preprocessor
 from sklearn.model_selection import train_test_split
-from db_connect import DbConnector
-from cloud_connect import Cloud
-from model_builder import Model
-import yaml
+from src.model_builder import Model
 
 
 class Training:
@@ -22,19 +19,22 @@ class Training:
         print("preprocessing")
         features, labels = self.preprocess_training_data(raw_data)
 
+        print(features, labels)
         # Clustering
         print('clustering')
         clustering_obj = Cluster(cloud_object=self.cloud)
         cluster_labels = clustering_obj.create_cluster(features=features)
+        print("clustering completed")
 
         # combine data
         training_data = features
         training_data['cluster'] = cluster_labels
         training_data[self.config['base']['target_col']] = labels
 
+        print("data combined")
         prediction_schema_dict = {}
         # perform Model Training based on clusters:
-        for cluster_number in training_data["cluster"].unique().tolist().sort():
+        for cluster_number in training_data["cluster"].unique().tolist():
             print("training")
 
             # fetch data based on cluster number and divide into training and testing sets
@@ -46,7 +46,7 @@ class Training:
                                                                 test_size=self.config["training_schema"]["test_size"])
 
             # CREATE MODEL_BUILDER OBJECT, TRAIN MODELS AND OBTAIN THE BEST MODEL
-            model = Model(train_x=x_train, train_y=y_train, test_x=x_test, test_y=y_test, logger_object=None)
+            model = Model(train_x=x_train, train_y=y_train, test_x=x_test, test_y=y_test, logger_object=self.logger)
             (best_model, best_model_name, best_model_metrics) = model.get_best_model()
 
             # Create model filepath for cloud storage
@@ -67,13 +67,3 @@ class Training:
         preprocessor_obj = Preprocessor(self.config)
         features, labels = preprocessor_obj.preprocess(data)
         return features, labels
-
-
-if __name__=="__main__":
-    with open('params.yaml') as f:
-        config = yaml.safe_load(f)
-
-    db = DbConnector(config)
-    cloud = Cloud(config)
-    train = Training(config, cloud, db, None)
-    train.start_training()
