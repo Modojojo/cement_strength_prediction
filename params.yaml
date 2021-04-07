@@ -1,0 +1,46 @@
+base:
+  project: cement-strength-regression
+  random_state: 42
+  target_col: concrete_compressive_strength
+
+cloud:
+  training_data_folder: cement_strength/data/training_files/
+  prediction_data_folder: cement_strength/data/prediction_files/
+  models_save_path: cement_strength/models/
+  clustering_model_name: k_means_clustering_model.pkl
+  standard_scaler_model: standard_scaler.pkl
+  prediction_schema: prediction_schema.json
+
+database:
+  raw_training_data_db: TRAINING_DATA
+  raw_bad_data_db: BAD_DATA
+  raw_prediction_data_db: PREDICTION_DATA
+  predictions_db: PREDICTIONS
+
+training_schema:
+  test_size: 0.2
+  number_of_columns: 9
+  column_names:
+    - cement_component_1
+    - blast_furnace_slag_component_2
+    - fly_ash_component_3
+    - water_component_4
+    - superplasticizer_component_5
+    - coarse_aggregate_component_6
+    - fine_aggregate_component_7
+    - age_day
+    - concrete_compressive_strength
+
+prediction_schema:
+  number_of_columns: 8
+  column_names:
+    - cement_component_1
+    - blast_furnace_slag_component_2
+    - fly_ash_component_3
+    - water_component_4
+    - superplasticizer_component_5
+    - coarse_aggregate_component_6
+    - fine_aggregate_component_7
+    - age_day
+
+

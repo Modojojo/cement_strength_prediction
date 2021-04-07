@@ -1,0 +1,6 @@
+boto3
+sklearn
+pyyaml
+pandas
+numpy
+pymongo
