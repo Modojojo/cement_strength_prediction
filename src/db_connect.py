@@ -45,6 +45,8 @@ class DbConnector:
         collection.insert_many(file.to_dict('records'))
 
     def clear_training_folder(self):
+        collection = self.database["METRICS"]
+        collection.drop()
         collection = self.database[self.TRAINING_COLLECTION_NAME]
         collection.drop()
 

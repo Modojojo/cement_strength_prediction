@@ -55,15 +55,15 @@ class Predictor:
         print("completed")
 
     def predict_one(self, features):
-        print("prediction for one record started")
         features = np.array(features)
         features = self.preprocess_data(features)
+        features = np.array([features])
         cluster_id = self.predict_cluster(features)
+        cluster_id = cluster_id[0]
         prediction_schema = self.cloud.load_json(self.config['cloud']['prediction_schema'])
         model_name = prediction_schema[str(cluster_id)]
         model = self.cloud.load_model(model_name)
         prediction = model.predict(features)
-        print('completed')
         return prediction[0]
 
     def log_transformation(self, features):

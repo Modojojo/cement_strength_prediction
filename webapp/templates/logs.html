@@ -1,0 +1,44 @@
+<html>
+<head>
+    <title>Wafer Fault Detection</title>
+    <link rel = "stylesheet" type = "text/css" href = "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <style>
+        .bdy-bgr{
+            background-color:#d7ecf4;
+        }
+        .bg-nav-purple{
+            background-color:#1a1c20;
+        }
+        hr.solid {
+            border-top: 3px solid linear-gradient(to bottom right, #FF5F6D, #FFC371);
+        }
+        .hr1 {
+            border:1px;
+            border-radius:1px;
+            height: 3px;
+            background-image: linear-gradient(to bottom right, #005b96 , #6497b1);
+        }
+        .text-info-custom{
+            color: #ed601a
+        }
+        .card{
+            border-radius:0px;
+        }
+    </style>
+</head>
+<body class = "bdy-bgr">
+    <nav class="navbar navbar-dark bg-dark shadow">
+        <span class="navbar-brand mb-0 h1">Logs</span>
+    </nav>
+    <div class = "container-fluid">
+        <ul class="list-group ml-5 mr-5 mt-5 mb-5">
+            {% for log in logs %}
+            <li class="list-group-item">{{log[0]}} - {{log[1]}}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+</body>
+</html>

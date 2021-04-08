@@ -26,63 +26,125 @@ def read_params(config_path):
 
 @app.route('/', methods=["GET"])
 def index():
-    return render_template('')
+    return render_template('index.html')
+
+
+@app.route('/training_dashboard', methods=["GET"])
+def dashboard():
+    return render_template('dashboard.html')
+
+
+@app.route('/prediction_page', methods=["GET", "POST"])
+def prediction_page():
+    try:
+        if request.method == "GET":
+            return render_template('prediction_page.html')
+        elif request.method == "POST":
+
+            cloud = Cloud(config)
+            db = DbConnector(config)
+            logger = Logger()
+
+            features = [int(request.form["component1"]),
+                        int(request.form["component2"]),
+                        int(request.form["component3"]),
+                        int(request.form["component4"]),
+                        int(request.form["component5"]),
+                        int(request.form["component6"]),
+                        int(request.form["component7"]),
+                        int(request.form["component8"])]
+
+            predictor_obj = Predictor(config, cloud, db, logger)
+            prediction_single = predictor_obj.predict_one(features)
+            prediction_single = str(prediction_single)[:6] + ' ' + 'Mega Pascal'
+            db.close()
+            logger.close()
+            return render_template('prediction_page.html', prediction=prediction_single)
+    except Exception as e:
+        return render_template("error_page.html", message=str(e))
 
 
 @app.route('/train', methods=["GET"])
 def train():
-    # create instances of cloud, database, logger
-    cloud = Cloud(config)
-    db = DbConnector(config)
-    logger = Logger()
+    try:
+        # create instances of cloud, database, logger
+        cloud = Cloud(config)
+        db = DbConnector(config)
+        logger = Logger()
 
-    # Delete previous training data from DB
-    db.clear_training_folder()
+        # Delete previous training data from DB
+        db.clear_training_folder()
 
-    # Prepare validate and insert training raw data into DB
-    data_preparation_obj = PrepareTrainingData(config=config,
-                                               cloud_object=cloud,
-                                               db_object=db)
-    prepared = data_preparation_obj.prepare_data()
+        # Prepare validate and insert training raw data into DB
+        data_preparation_obj = PrepareTrainingData(config=config,
+                                                   cloud_object=cloud,
+                                                   db_object=db)
+        prepared = data_preparation_obj.prepare_data()
 
-    # Fetch data from db
-    # preprocess
-    # Cluster
-    # train Regressor models
-    print("prepared  : {}".format(prepared))
-    if prepared is True:
-        trainer_obj = Training(config=config,
-                               cloud=cloud,
-                               db=db,
-                               logger=logger)
-        try:
+        # Fetch data from db
+        # preprocess
+        # Cluster
+        # train Regressor models
+        print("prepared  : {}".format(prepared))
+        if prepared is True:
+            trainer_obj = Training(config=config,
+                                   cloud=cloud,
+                                   db=db,
+                                   logger=logger)
             trainer_obj.start_training()
-        except Exception as e:
-            print(e)
-            return render_template('')
-    return render_template('')
+        return render_template('training_completed.html')
+    except Exception as e:
+        return render_template("error_page.html", message=str(e))
 
 
 @app.route('/predict', methods=["GET"])
 def prediction():
-    cloud = Cloud(config)
-    db = DbConnector(config)
-    logger = Logger()
+    try:
+        cloud = Cloud(config)
+        db = DbConnector(config)
+        logger = Logger()
 
-    # delete previous data
-    db.clear_prediction_folder()
+        # delete previous data
+        db.clear_prediction_folder()
 
-    # prepare data
-    data_prep = PreparePredictionData(config=config,
-                                      cloud_object=cloud,
-                                      db_object=db)
-    data_prep.prepare_data()
+        # prepare data
+        data_prep = PreparePredictionData(config=config,
+                                          cloud_object=cloud,
+                                          db_object=db)
+        data_prep.prepare_data()
 
-    predictor_obj = Predictor(config, cloud, db, logger)
-    predictions = predictor_obj.predict()
-    print(predictions)
+        predictor_obj = Predictor(config, cloud, db, logger)
+        predictor_obj.predict()
 
-    return render_template('')
+        db.close()
+        logger.close()
+
+        return render_template('prediction_completed.html')
+    except Exception as e:
+        return render_template("error_page.html", message=str(e))
+
+
+@app.route('/metrics', methods=['GET'])
+def get_metrics():
+    try:
+        db = DbConnector(config)
+        metrics = db.fetch_metrics()
+        db.close()
+        for metric in metrics:
+            for i in metric:
+                if len(metric[i]) > 5 and i != 'model':
+                    metric[i] = metric[i][:5]
+
+        return render_template('metrics.html', metrics=metrics)
+
+    except Exception as e:
+        print(e)
+        return render_template('404.html', message=str(e))
+
+
+@app.route('/logs', methods=["POST"])
+def get_logs():
+    return render_template("logs.html")
 
 
 if __name__ == "__main__":

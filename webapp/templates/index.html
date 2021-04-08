@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Cement Strength Prediction</title>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+  <!-- Custom styles for this template -->
+  <link href="css/business-frontpage.css" rel="stylesheet">
+
+  <style>
+    .card{
+      border-radius:0px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">Cement Strength Prediction</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Home
+              <span class="sr-only">(current)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/prediction_page">Make Prediction</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/training_dashboard">Admin Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Source Code</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="bg-primary py-5 mb-5">
+    <div class="container h-100">
+      <div class="row h-100 align-items-center">
+        <div class="col-lg-12">
+          <h1 class="display-4 text-white mt-5 mb-2">Predict Strength of the Concrete</h1>
+          <p></p>
+          <p class="lead mb-3 text-white-50">Compressive strength is the ability of material or structure to carry the loads on its surface without any crack or deflection. A material under compression tends to reduce the size, while in tension, size elongates.</p>
+          <p class="lead mb-5 text-white-50">Compressive strength of concrete depends on many factors such as water-cement ratio, cement strength, quality of concrete material, quality control during the production of concrete, etc.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <div class="container">
+    <!-- /.row -->
+    <div class="row">
+      <div class="col-md-4 mb-5">
+        <div class="card shadow-lg h-100">
+          <div class="card-body">
+            <h4 class="card-title">Check strength of Your Concrete</h4>
+            <p class="card-text">Check what is the compressive strength of concrete based on certain features</p>
+          </div>
+          <div class="card-footer">
+            <a href="/prediction_page" class="btn btn-primary">Check it out!</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-5">
+        <div class="card shadow-lg h-100">
+          <div class="card-body">
+            <h4 class="card-title">Admin Dashboard</h4>
+            <p class="card-text">Control Batch Processes, Start training, Start Predictions, View Metrics and view Logs</p>
+          </div>
+          <div class="card-footer">
+            <a href="/training_dashboard" class="btn btn-primary">Open Admin Dashboard</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-5">
+        <div class="card shadow-lg h-100">
+          <div class="card-body">
+            <h4 class="card-title">Check out Source Code</h4>
+            <p class="card-text">Want to see the code behind the project. Click on Source Code</p>
+          </div>
+          <div class="card-footer">
+            <a href="#" class="btn btn-primary">Source Code</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.row -->
+     <div class="row">
+      <div class="col-md-8 mb-5">
+        <hr>
+        <h2>What features we use for Prediction</h2>
+        <hr>
+        <p>Cement - Calculated as amount in Kilo Grams in a cubic meter mixture</p>
+        <p>Blast Furnace Slag - Calculated as amount in Kilo Grams in a cubic meter mixture</p>
+        <p>Fly Ash - Calculated as amount in Kilo Grams in a cubic meter mixture</p>
+        <p>Water - Calculated as  Litres in a cubic meter mixture</p>
+        <p>Superplasticizer - Calculated as amount in Kilo Grams in a cubic meter mixture</p>
+        <p>Coarse Aggregate - Calculated as amount in Kilo Grams in a cubic meter mixture</p>
+        <p>Fine Aggregate - Calculated as amount in Kilo Grams in a cubic meter mixture</p>
+        <p>Age - Days</p>
+        <hr>
+      </div>
+      <div class="col-md-4 mb-5">
+<!--        <h2></h2>-->
+
+      </div>
+    </div>
+  </div>
+  <!-- /.container -->
+
+  <!-- Footer -->
+  <footer class="py-5 bg-dark">
+    <div class="container">
+      <p class="m-0 text-center text-white">Copyright &copy;</p>
+    </div>
+    <!-- /.container -->
+  </footer>
+
+  <!-- Bootstrap core JavaScript -->
+   <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+
+</html>

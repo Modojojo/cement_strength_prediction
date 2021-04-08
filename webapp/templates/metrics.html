@@ -1,0 +1,62 @@
+<html>
+<head>
+    <title>Wafer Fault Detection</title>
+    <link rel = "stylesheet" type = "text/css" href = "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <style>
+        .bdy-bgr{
+            background-color:#d7ecf4;
+        }
+        .bg-nav-purple{
+            background-color:#1a1c20;
+        }
+        hr.solid{
+            border-top: 3px solid linear-gradient(to bottom right, #FF5F6D, #FFC371);
+        }
+        .hr1{
+            border:1px;
+            border-radius:1px;
+            height: 3px;
+            background-image: linear-gradient(to bottom right, #005b96 , #6497b1);
+        }
+        .text-info-custom{
+            color: #ed601a
+        }
+        .card{
+            border-radius:0px;
+        }
+    </style>
+</head>
+<body class = "bdy-bgr">
+    <nav class="navbar navbar-dark bg-dark shadow">
+        <span class="navbar-brand mb-0 h1">Metrics</span>
+    </nav>
+    <div class = "container-fluid">
+        <div class = "row mt-5 mb-5 ml-5 mr-5">
+            <div class="card-deck col-md-12">
+                {% for metric in metrics %}
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">{{metric['model']}}</h5>
+                        <hr class="hr1">
+                        <p class="card-text">R-Squared Score: {{metric['R-Squared Score']}}</p>
+                        <p class="card-text">Mean Squared Error: {{metric['Mean Squared Error']}}</p>
+                        <p class="card-text">Mean Absolute Error: {{metric['Mean Absolute Error']}}</p>
+                    </div>
+                    <div class="card-footer">
+                        <p class="card-text"><small class="text-muted">Last updated {{metric['date']}} {{metric['timestamp']}}</small></p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="fixed-bottom">
+            <nav class="navbar navbar-dark bg-dark shadow">
+                <span></span>
+                <form action = "/training_dashboard" method="get" class="form-inline my-2 my-lg-0">
+                        <button class="btn btn-outline-warning my-2 my-sm-0" type="submit">Back to Dashboard</button>
+                </form>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>
