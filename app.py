@@ -7,6 +7,7 @@ from src.custom_logger import Logger
 from src.prepare_training_data import PrepareTrainingData
 from src.training import Training
 from src.prepare_prediction_data import PreparePredictionData
+from src.predictor import Predictor
 
 params_path = 'params.yaml'
 webapp_root = 'webapp'
@@ -76,6 +77,11 @@ def prediction():
                                       cloud_object=cloud,
                                       db_object=db)
     data_prep.prepare_data()
+
+    predictor_obj = Predictor(config, cloud, db, logger)
+    predictions = predictor_obj.predict()
+    print(predictions)
+
     return render_template('')
 
 
