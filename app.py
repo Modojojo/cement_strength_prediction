@@ -132,7 +132,7 @@ def get_metrics():
         db.close()
         for metric in metrics:
             for i in metric:
-                if len(metric[i]) > 5 and i != 'model':
+                if len(metric[i]) > 5 and i != 'model' and i != 'date':
                     metric[i] = metric[i][:5]
 
         return render_template('metrics.html', metrics=metrics)
