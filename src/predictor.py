@@ -54,6 +54,18 @@ class Predictor:
         self.db.insert_predictions(final_predictions)
         print("completed")
 
+    def predict_one(self, features):
+        print("prediction for one record started")
+        features = np.array(features)
+        features = self.preprocess_data(features)
+        cluster_id = self.predict_cluster(features)
+        prediction_schema = self.cloud.load_json(self.config['cloud']['prediction_schema'])
+        model_name = prediction_schema[str(cluster_id)]
+        model = self.cloud.load_model(model_name)
+        prediction = model.predict(features)
+        print('completed')
+        return prediction[0]
+
     def log_transformation(self, features):
         # some of the features have 0 as values and log(0) is not defined
         # that is why adding 1 to each value and then applying log transformation
