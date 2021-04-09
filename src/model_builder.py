@@ -14,34 +14,27 @@ class Model:
         self.train_y = train_y
         self.test_x = test_x
         self.test_y = test_y
-        self.param_grid_xgboost = {'max_depth': range(4, 7),
-                                   'n_estimators': range(40, 160, 10),
-                                   'learning_rate': [0.5, 0.1, 0.01, 0.001]}
+        self.param_grid_xgboost = {'max_depth': range(3, 12)}
         self.param_grid_random_forest = {'n_estimators': range(50, 150, 10),
                                          'criterion': ['mse', 'mae'],
                                          'max_depth': range(3, 8)}
-        self.param_grid_linear_regression = {'penalty': ['l2', 'none']}
+        self.param_grid_linear_regression = {'normalize': [True, False]}
         self.param_grid_svr = {'kernel': ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed'],
-                               'degree': range(3, 10),
                                'gamma': ['scale', 'auto']}
-        self.param_grid_decision_tree = {'criterion': ['mse', 'mae', 'poisson'],
-                                         'max_depth': range(3, 8),
-                                         'max_features': ['auto', 'sqrt', 'log2']}
+        self.param_grid_decision_tree = {'criterion': ['mse', 'mae'],
+                                         'max_depth': range(3, 8)}
 
     def train_xgboost(self):
         try:
             self.logger.log_training('Finding Best Hyper-Parameters for XGBoost')
             model_params = self.get_best_params_xgboost()
             if model_params is not False:
-                (max_depth, n_estimators, learning_rate) = model_params
-                model = XGBRegressor(objective='reg:linear',
-                                     max_depth=max_depth,
-                                     n_estimators = n_estimators,
-                                     learning_rate=learning_rate)
-                # self.logger.log_training(
-                #     'Training XGBoost Classifier with the Following HyperParameters :: '
-                #     'max_depth: {}, n_estimators: {}, learning_rate: {}'.format(max_depth, n_estimators, learning_rate)
-                # )
+                max_depth = model_params
+                model = XGBRegressor(max_depth=max_depth)
+                self.logger.log_training(
+                    'Training XGBoost Regressor with the Following HyperParameters :: '
+                    'max_depth: {}'.format(max_depth)
+                )
                 model.fit(self.train_x, self.train_y)
                 return model
             else:
@@ -76,11 +69,11 @@ class Model:
             self.logger.log_training('Finding Best Hyper-Parameters for Linear Regression')
             model_params = self.get_best_params_linear_regression()
             if model_params is not False:
-                penalty = model_params
-                model = LinearRegression(penalty=penalty)
+                normalize = model_params
+                model = LinearRegression(normalize=normalize)
                 self.logger.log_training(
-                    'Training Linear Regression with the Following HyperParameters :: penalty: {}'.format(
-                        penalty
+                    'Training Linear Regression with the Following HyperParameters :: Normalize: {}'.format(
+                        normalize
                     )
                 )
                 model.fit(self.train_x, self.train_y)
@@ -96,10 +89,9 @@ class Model:
             self.logger.log_training('Finding best Hyper-Parameters for Decision Tree')
             model_params = self.get_best_param_decision_tree()
             if model_params is not False:
-                (max_depth, criterion, max_features) = model_params
+                (max_depth, criterion) = model_params
                 model = DecisionTreeRegressor(max_depth=max_depth,
-                                              criterion=criterion,
-                                              max_features=max_features)
+                                              criterion=criterion)
                 self.logger.log_training('Training Decision Tree with the Following HyperParameters ::'
                                          ' max_depth: {}, criterion: {}'.format(max_depth, criterion)
                                          )
@@ -116,13 +108,12 @@ class Model:
             self.logger.log_training('Finding best Hyper-Parameters for Support Vector Machine')
             model_params = self.get_best_param_svr()
             if model_params is not False:
-                (kernel, degree, gamma) = model_params
+                (kernel, gamma) = model_params
                 model = SVR(kernel=kernel,
-                            degree=degree,
                             gamma=gamma)
-                # self.logger.log_training('Training Support Vector Classifier with the Following HyperParameters ::'
-                #                          ' kernel: {}, degree: {}'.format(kernel, degree, gamma)
-                #                          )
+                self.logger.log_training('Training Support Vector Regressor with the Following HyperParameters ::'
+                                         ' kernel: {}, gamma: {}'.format(kernel, gamma)
+                                         )
                 model.fit(self.train_x, self.train_y)
                 return model
             else:
@@ -139,9 +130,7 @@ class Model:
             grid.fit(self.train_x, self.train_y)
 
             max_depth = grid.best_params_['max_depth']
-            n_estimators = grid.best_params_['n_estimators']
-            learning_rate = grid.best_params_['learning_rate']
-            retvar = (max_depth, n_estimators, learning_rate)
+            retvar = max_depth
             return retvar
         except Exception as e:
             self.logger.log_training('MODEL SELECTION: Error while getting best Parameters for XGBoost')
@@ -170,8 +159,8 @@ class Model:
                                 param_grid=self.param_grid_linear_regression,
                                 cv=5, verbose=3)
             grid.fit(self.train_x, self.train_y)
-            penalty = grid.best_params_['penalty']
-            return penalty
+            normalize = grid.best_params_['normalize']
+            return normalize
         except Exception:
             self.logger.log_training(
                 'MODEL SELECTION: Error while getting best Parameters for Linear Regression'
@@ -186,9 +175,8 @@ class Model:
                                 cv=5, verbose=3)
             grid.fit(self.train_x, self.train_y)
             kernel = grid.best_params_['kernel']
-            degree = grid.best_params_['degree']
             gamma = grid.best_params_['gamma']
-            retvar = (kernel, degree, gamma)
+            retvar = (kernel, gamma)
             return retvar
         except Exception as e:
             self.logger.log_training(
