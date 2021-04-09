@@ -133,7 +133,7 @@ class Model:
 
     def get_best_params_xgboost(self):
         try:
-            grid = GridSearchCV(XGBRegressor(objective='binary:logistic'),
+            grid = GridSearchCV(XGBRegressor(objective='reg:linear'),
                                 param_grid=self.param_grid_xgboost,
                                 cv=5, verbose=3)
             grid.fit(self.train_x, self.train_y)

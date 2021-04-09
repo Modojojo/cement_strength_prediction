@@ -40,7 +40,7 @@ def prediction_page():
         if request.method == "GET":
             return render_template('prediction_page.html')
         elif request.method == "POST":
-
+            config = read_params(params_path)
             cloud = Cloud(config)
             db = DbConnector(config)
             logger = Logger()
@@ -68,12 +68,14 @@ def prediction_page():
 def train():
     try:
         # create instances of cloud, database, logger
+        config = read_params(params_path)
         cloud = Cloud(config)
         db = DbConnector(config)
         logger = Logger()
         logger.log_training_pipeline("----------TRAINING PROCESS TRIGGERED----------")
         # Delete previous training data from DB
         db.clear_training_folder()
+        logger.move_logs_to_hist()
 
         # Prepare validate and insert training raw data into DB
         data_preparation_obj = PrepareTrainingData(config=config,
@@ -100,6 +102,7 @@ def train():
 @app.route('/predict', methods=["GET"])
 def prediction():
     try:
+        config = read_params(params_path)
         cloud = Cloud(config)
         db = DbConnector(config)
         logger = Logger()
@@ -128,6 +131,7 @@ def prediction():
 @app.route('/metrics', methods=['GET'])
 def get_metrics():
     try:
+        config = read_params(params_path)
         db = DbConnector(config)
         metrics = db.fetch_metrics()
         db.close()
@@ -135,12 +139,9 @@ def get_metrics():
             for i in metric:
                 if len(metric[i]) > 5 and i != 'model' and i != 'date':
                     metric[i] = metric[i][:5]
-
         return render_template('metrics.html', metrics=metrics)
-
     except Exception as e:
-        print(e)
-        return render_template('404.html', message=str(e))
+        return render_template('error_page.html', message=str(e))
 
 
 @app.route('/logs', methods=["POST"])
@@ -159,7 +160,6 @@ def get_logs():
 
         logger = Logger()
         logs = logger.export_logs(log_collection_name)
-        print(logs)
         logger.close()
         return render_template("logs.html", logs=logs)
     except Exception as e:
@@ -167,10 +167,5 @@ def get_logs():
 
 
 if __name__ == "__main__":
-    # fetch config
-    params_path = 'params.yaml'
-    global config
-    config = read_params(params_path)
-
     # run app
     app.run()
