@@ -6,7 +6,7 @@ import os
 datetime_lib = datetime
 date_lib = date
 
-DB_NAME = os.environ.get("DB_NAME")
+DB_NAME = os.environ.get("CEMENT_DB_NAME")
 DB_KEY = os.environ.get("DB_KEY")
 
 
@@ -65,7 +65,7 @@ class Logger:
         logfile = []
         collection = None
 
-        if log_type == 'file_validation':
+        if log_type == 'fileValidation':
             collection = self.database['raw_validation_logs']
 
         elif log_type == 'training':
@@ -74,13 +74,12 @@ class Logger:
         elif log_type == 'prediction':
             collection = self.database['prediction_logs']
 
-        elif log_type == 'training_pipeline':
+        elif log_type == 'process':
             collection = self.database['process_logs']
 
         if collection is not None:
             for row in collection.find({}, {'_id': 0}):
                 logfile.append(row)
-
         return self.format_logs(logfile)
 
     def format_logs(self, logfile):

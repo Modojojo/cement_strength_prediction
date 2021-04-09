@@ -2,8 +2,9 @@ from src.prediction_validator import Validator
 
 
 class PreparePredictionData:
-    def __init__(self, config, cloud_object, db_object):
+    def __init__(self, config, cloud_object, db_object, logger_object):
         self.cloud = cloud_object
+        self.logger = logger_object
         self.config = config
         self.db = db_object
         self.validator = Validator()
@@ -34,12 +35,16 @@ class PreparePredictionData:
                         success = (True, file)
                         return success
                     except Exception:
+                        self.logger.log_file_validation(f"{filename} : REJECTED: Failed to convert data types to fioat")
                         return failed
                 else:
+                    self.logger.log_file_validation(f"{filename} : REJECTED: Incorrect Column Names")
                     return failed
             else:
+                self.logger.log_file_validation(f"{filename} : REJECTED: Incorrect Number of columns")
                 return failed
         else:
+            self.logger.log_file_validation(f"{filename} : REJECTED: Incorrect filename")
             return failed
 
     def format_columns(self, columns):
@@ -52,12 +57,14 @@ class PreparePredictionData:
 
     def prepare_data(self):
         try:
+            self.logger.log_training_pipeline("PREPARING TRAINING DATA : Started : Please check file validation logs for more information")
             filenames_list = self.read_filenames()
             for filename in filenames_list:
                 (status, file) = self.validate_one_file(filename)
                 if status is True:
                     self.insert_into_db(file)
+            self.logger.log_training_pipeline("PREPARING TRAINING DATA : Completed")
             return True
         except Exception as e:
-            print(e)
+            self.logger.log_training_pipeline("Failed to prepare Training Data")
             return False

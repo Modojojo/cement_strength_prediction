@@ -30,7 +30,7 @@ class Model:
 
     def train_xgboost(self):
         try:
-            # self.logger.log_training('Finding Best Hyper-Parameters for XGBoost')
+            self.logger.log_training('Finding Best Hyper-Parameters for XGBoost')
             model_params = self.get_best_params_xgboost()
             if model_params is not False:
                 (max_depth, n_estimators, learning_rate) = model_params
@@ -47,73 +47,73 @@ class Model:
             else:
                 raise Exception('FAILED: Error while training Model for XGBoost')
         except Exception:
-            # self.logger.log_training('ERROR: MODEL SELECTION: Error while training XGBoost Model')
+            self.logger.log_training('ERROR: MODEL SELECTION: Error while training XGBoost Model')
             return False
 
     def train_random_forest(self):
         try:
-            #self.logger.log_training('Finding Best Hyper-Parameters for Random Forest')
+            self.logger.log_training('Finding Best Hyper-Parameters for Random Forest')
             model_params = self.get_best_params_random_forest()
             if model_params is not False:
                 (max_depth, n_estimators, criterion) = model_params
                 model = RandomForestRegressor(max_depth=max_depth,
                                               n_estimators=n_estimators,
                                               criterion=criterion)
-                # self.logger.log_training(
-                #     'Training Random Forest Classifier with the Following HyperParameters ::'
-                #     ' max_depth: {}, n_estimators: {}, criterion: {}'.format(max_depth, n_estimators, criterion)
-                # )
+                self.logger.log_training(
+                    'Training Random Forest Regressor with the Following HyperParameters ::'
+                    ' max_depth: {}, n_estimators: {}, criterion: {}'.format(max_depth, n_estimators, criterion)
+                )
                 model.fit(self.train_x, self.train_y)
                 return model
             else:
                 raise Exception('Error while training the best Model for Random Forest')
         except Exception:
-            # self.logger.log_training('ERROR: MODEL SELECTION: Error while training Random Forest Model')
+            self.logger.log_training('ERROR: MODEL SELECTION: Error while training Random Forest Model')
             return False
 
     def train_linear_regression(self):
         try:
-            #self.logger.log_training('Finding Best Hyper-Parameters for Logistic Regression')
+            self.logger.log_training('Finding Best Hyper-Parameters for Linear Regression')
             model_params = self.get_best_params_linear_regression()
             if model_params is not False:
                 penalty = model_params
                 model = LinearRegression(penalty=penalty)
-                # self.logger.log_training(
-                #     'Training Logistic Regression Classifier with the Following HyperParameters :: penalty: {}'.format(
-                #         penalty
-                #     )
-                # )
+                self.logger.log_training(
+                    'Training Linear Regression with the Following HyperParameters :: penalty: {}'.format(
+                        penalty
+                    )
+                )
                 model.fit(self.train_x, self.train_y)
                 return model
             else:
-                raise Exception('Error while training the best Model for Logistic Regression')
+                raise Exception('Error while training the best Model for Linear Regression')
         except Exception:
-            #self.logger.log_training('ERROR: MODEL SELECTION: Error while training Logistic Regression Model')
+            self.logger.log_training('ERROR: MODEL SELECTION: Error while training Linear Regression Model')
             return False
 
     def train_decision_tree(self):
         try:
-            #self.logger.log_training('Finding best Hyper-Parameters for Decision Tree')
+            self.logger.log_training('Finding best Hyper-Parameters for Decision Tree')
             model_params = self.get_best_param_decision_tree()
             if model_params is not False:
                 (max_depth, criterion, max_features) = model_params
                 model = DecisionTreeRegressor(max_depth=max_depth,
                                               criterion=criterion,
                                               max_features=max_features)
-                # self.logger.log_training('Training Decision Tree Classifier with the Following HyperParameters ::'
-                #                          ' max_depth: {}, criterion: {}'.format(max_depth, criterion)
-                #                          )
+                self.logger.log_training('Training Decision Tree with the Following HyperParameters ::'
+                                         ' max_depth: {}, criterion: {}'.format(max_depth, criterion)
+                                         )
                 model.fit(self.train_x, self.train_y)
                 return model
             else:
                 raise Exception('Error while training the best Model for Decision Tree')
         except Exception:
-            #self.logger.log_training('ERROR: MODEL SELECTION: Error while training Decision Tree Model')
+            self.logger.log_training('ERROR: MODEL SELECTION: Error while training Decision Tree Model')
             return False
 
     def train_svr(self):
         try:
-            #self.logger.log_training('Finding best Hyper-Parameters for Support Vector Machine')
+            self.logger.log_training('Finding best Hyper-Parameters for Support Vector Machine')
             model_params = self.get_best_param_svr()
             if model_params is not False:
                 (kernel, degree, gamma) = model_params
@@ -126,9 +126,9 @@ class Model:
                 model.fit(self.train_x, self.train_y)
                 return model
             else:
-                raise Exception('Error while training the best Model for Random Forest')
+                raise Exception('Error while training the best Model for Support Vector Machine')
         except Exception:
-            #self.logger.log_training('ERROR: MODEL SELECTION: Error while training Support Vector Machine Model')
+            self.logger.log_training('ERROR: MODEL SELECTION: Error while training Support Vector Machine Model')
             return False
 
     def get_best_params_xgboost(self):
@@ -144,7 +144,7 @@ class Model:
             retvar = (max_depth, n_estimators, learning_rate)
             return retvar
         except Exception as e:
-            #self.logger.log_training('MODEL SELECTION: Error while getting best Parameters for XGBoost Classifier')
+            self.logger.log_training('MODEL SELECTION: Error while getting best Parameters for XGBoost')
             return False
 
     def get_best_params_random_forest(self):
@@ -160,7 +160,7 @@ class Model:
             retvar = (max_depth, n_estimators, criterion)
             return retvar
         except Exception:
-            #self.logger.log_training('MODEL SELECTION: Error while getting best Parameters for Random Forest Classifier')
+            self.logger.log_training('MODEL SELECTION: Error while getting best Parameters for Random Forest')
             return False
 
     def get_best_params_linear_regression(self):
@@ -173,9 +173,9 @@ class Model:
             penalty = grid.best_params_['penalty']
             return penalty
         except Exception:
-            # self.logger.log_training(
-            #     'MODEL SELECTION: Error while getting best Parameters for Logistic Regression Classifier'
-            # )
+            self.logger.log_training(
+                'MODEL SELECTION: Error while getting best Parameters for Linear Regression'
+            )
             return False
 
     def get_best_param_svr(self):
@@ -191,9 +191,9 @@ class Model:
             retvar = (kernel, degree, gamma)
             return retvar
         except Exception as e:
-            # self.logger.log_training(
-            #     'MODEL SELECTION: Error while getting best Parameters for Support Vector Classifier'
-            # )
+            self.logger.log_training(
+                'MODEL SELECTION: Error while getting best Parameters for Support Vector Machine'
+            )
             return False
 
     def get_best_param_decision_tree(self):
@@ -210,9 +210,9 @@ class Model:
             retvar = (max_depth, criterion)
             return retvar
         except Exception:
-            # self.logger.log_training(
-            #     'MODEL SELECTION: Error while getting best Parameters for Support Vector Classifier'
-            # )
+            self.logger.log_training(
+                'MODEL SELECTION: Error while getting best Parameters for Decision Tree'
+            )
             return False
 
     def get_best_model(self):
@@ -221,13 +221,13 @@ class Model:
         :return:
         """
         try:
-            # self.logger.log_training('MODEL SELECTION: Multi Model Training -- STARTED')
+            self.logger.log_training('MODEL SELECTION: Multi Model Training -- STARTED')
             xgboost_regressor = self.train_xgboost()
             random_forest_regressor = self.train_random_forest()
             linear_regression_regressor = self.train_linear_regression()
             decision_tree_rregressor = self.train_decision_tree()
             svr = self.train_svr()
-            # self.logger.log_training('MODEL SELECTION: Multi Model Training -- COMPLETED')
+            self.logger.log_training('MODEL SELECTION: Multi Model Training -- COMPLETED')
 
             models_dictionary = {'XGBoost': xgboost_regressor,
                                  'Random_Forest': random_forest_regressor,
@@ -242,7 +242,7 @@ class Model:
 
             select_by_accuracy = False
 
-            # self.logger.log_training('MODEL SELECTION: Making Predictions and Storing Scores -- STARTED')
+            self.logger.log_training('MODEL SELECTION: Making Predictions and Storing Scores -- STARTED')
             for model_name in models_dictionary:
                 model = models_dictionary[model_name]
                 if model is not False:  # Checking if model is trained properly or not
@@ -251,13 +251,13 @@ class Model:
                         scores_dictionary[model_name] = r2_score(self.test_y, prediction)
                     except Exception as e:
                         print(e)
-                        # self.logger.log_training(
-                        #     'MODEL SELECTION : FAILED to select by ROC-AUC Score, Using Accuracy Score instead'
-                        # )
+                        self.logger.log_training(
+                            'MODEL SELECTION : FAILED to select by R-squared Score'
+                        )
 
             # self.logger.log_training('MODEL SELECTION: Making Predictions and Storing Scores -- COMPLETED')
 
-            # self.logger.log_training('MODEL SELECTION: Comparing and Finding Best Model')
+            self.logger.log_training('MODEL SELECTION: Comparing and Finding Best Model')
 
             # Selecting Valid Models
             final_scores_dict = {}
@@ -265,21 +265,21 @@ class Model:
                 if scores_dictionary[model_name] is not None:
                     final_scores_dict[model_name] = scores_dictionary[model_name]
 
-            # self.logger.log_training('Trained Following Models with given AUC Scores: {}'.format(final_scores_dict))
+            self.logger.log_training('Trained Following Models with given R-Squared Scores: {}'.format(final_scores_dict))
 
             best_model_name = max(final_scores_dict, key=lambda x: final_scores_dict[x])
             best_model = models_dictionary[best_model_name]
-            # self.logger.log_training('MODEL SELECTION: COMPLETED: selected -- {}'.format(best_model_name))
+            self.logger.log_training('MODEL SELECTION: COMPLETED: selected -- {}'.format(best_model_name))
             best_model_metrics = self.metrics(best_model, best_model_name)
             retvar = (best_model, best_model_name, best_model_metrics)
             return retvar
 
         except Exception as e:
-            # self.logger.log_training('CRITICAL: * Training Failed * please check the previous log for reason')
+            self.logger.log_training('CRITICAL: * Training Failed * please check the previous log for reason')
             raise e
 
     def metrics(self, best_model, best_model_name):
-        # self.logger.log_training("Preparing Metrics to be stored and reviewed")
+        self.logger.log_training("Preparing Metrics to be stored and reviewed")
         predictions = best_model.predict(self.test_x)
         r2 = r2_score(self.test_y, predictions)
         mae = mean_absolute_error(self.test_y, predictions)

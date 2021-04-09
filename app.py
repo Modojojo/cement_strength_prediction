@@ -71,7 +71,7 @@ def train():
         cloud = Cloud(config)
         db = DbConnector(config)
         logger = Logger()
-
+        logger.log_training_pipeline("----------TRAINING PROCESS TRIGGERED----------")
         # Delete previous training data from DB
         db.clear_training_folder()
 
@@ -85,13 +85,13 @@ def train():
         # preprocess
         # Cluster
         # train Regressor models
-        print("prepared  : {}".format(prepared))
         if prepared is True:
             trainer_obj = Training(config=config,
                                    cloud=cloud,
                                    db=db,
                                    logger=logger)
             trainer_obj.start_training()
+        logger.log_training_pipeline("----------TRAINING PROCESS COMPLETED----------")
         return render_template('training_completed.html')
     except Exception as e:
         return render_template("error_page.html", message=str(e))
@@ -110,7 +110,8 @@ def prediction():
         # prepare data
         data_prep = PreparePredictionData(config=config,
                                           cloud_object=cloud,
-                                          db_object=db)
+                                          db_object=db,
+                                          logger_object=logger)
         data_prep.prepare_data()
 
         predictor_obj = Predictor(config, cloud, db, logger)
@@ -144,7 +145,25 @@ def get_metrics():
 
 @app.route('/logs', methods=["POST"])
 def get_logs():
-    return render_template("logs.html")
+    try:
+        log_collection_name = None
+        log_type = request.form.get('logs')
+        if log_type == 'process':
+            log_collection_name = 'process'
+        elif log_type == 'training':
+            log_collection_name = 'training'
+        elif log_type == 'fileValidation':
+            log_collection_name = 'fileValidation'
+        elif log_type == 'prediction':
+            log_collection_name = 'prediction'
+
+        logger = Logger()
+        logs = logger.export_logs(log_collection_name)
+        print(logs)
+        logger.close()
+        return render_template("logs.html", logs=logs)
+    except Exception as e:
+        return render_template("error_page.html", message=str(e))
 
 
 if __name__ == "__main__":
