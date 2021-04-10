@@ -2,7 +2,8 @@ from src.training_raw_validator import Validator
 
 
 class PrepareTrainingData:
-    def __init__(self, config, cloud_object, db_object):
+    def __init__(self, config, cloud_object, db_object, logger_object):
+        self.logger = logger_object
         self.cloud = cloud_object
         self.config = config
         self.db = db_object
@@ -39,12 +40,16 @@ class PrepareTrainingData:
                         success = (True, features)
                         return success
                     except Exception:
+                        self.logger.log_file_validation(f"REJECTED: {filename} : Not able to convert data to float")
                         return failed
                 else:
+                    self.logger.log_file_validation(f"REJECTED: {filename} : Invalid Name of Columns")
                     return failed
             else:
+                self.logger.log_file_validation(f"REJECTED: {filename} : Invalid Number Of Columns")
                 return failed
         else:
+            self.logger.log_file_validation(f"REJECTED: {filename} : Invalid File Name")
             return failed
 
     def format_columns(self, columns):
@@ -57,12 +62,21 @@ class PrepareTrainingData:
 
     def prepare_data(self):
         try:
+            self.logger.log_training_pipeline("DATA PREPARATION: Started")
             filenames_list = self.read_filenames()
-            print(filenames_list)
+            num_accepted = 0
+            num_rejected = 0
+            self.logger.log_training_pipeline(f"DATA PREPARATION: Fetched {len(filenames_list)} files from Server")
             for filename in filenames_list:
                 (status, file) = self.validate_one_file(filename)
                 if status is True:
                     self.insert_into_db(file)
+                    num_accepted += 1
+                else:
+                    num_rejected += 1
+            self.logger.log_training_pipeline(
+                f"DATA PREPARATION: Completed:"
+                f" Number of files Accepted = {num_accepted} :: Number of files Rejected = {num_rejected}")
             return True
         except Exception as e:
             print(e)

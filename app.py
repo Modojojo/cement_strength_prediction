@@ -80,7 +80,8 @@ def train():
         # Prepare validate and insert training raw data into DB
         data_preparation_obj = PrepareTrainingData(config=config,
                                                    cloud_object=cloud,
-                                                   db_object=db)
+                                                   db_object=db,
+                                                   logger_object=logger)
         prepared = data_preparation_obj.prepare_data()
 
         # Fetch data from db
