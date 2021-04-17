@@ -19,6 +19,9 @@ Built an End to End Machine learning Pipeline for:
     * Stores the Trained Machine Learning Model and corresponding Evaluation metrics such as Mean Squared Error, Mean Absolute Error to Cloud.
     * Also Stores a Json file that contains Cluster number to Model Mapping such that the same can be used for Prediction.
 
+## Frontend
+Created a Web App which contains functionality to make prediction on one record by filling in the feature values, start batch training/prediction process, view the Statistic for the Models trained in the previous training process and View the logs, Logs can be viewed while the process is running in the backend.
+
 ##  Project Structure 
 ```
 main
